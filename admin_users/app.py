@@ -1,11 +1,14 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, redirect, request
+from flask_admin.menu import MenuLink
 from flask_sqlalchemy import SQLAlchemy
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore, Security, login_required
+from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore,\
+    Security, current_user
 from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 
@@ -18,10 +21,10 @@ app.config['SECRET_KEY'] = 'dfgefge2354234fsdfwefwefsdf23432wefwd'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-admin = Admin(app, template_mode='bootstrap3')
-
 
 # Flask-Security-Too
+app.config['SECURITY_PASSWORD_SALT'] = 'sdafsDF345345ERGARDG34543'
+app.config['SECURITY_PASSWORD_HASH'] = 'sha512_crypt'
 
 roles_users = db.Table('roles_users',
                        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -49,7 +52,29 @@ class Role(db.Model, RoleMixin):
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
-admin.add_view(ModelView(User, db.session))
+
+# Security Admin
+class AdminView(ModelView):
+    def is_accessible(self):
+        return current_user.has_role('admin')
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('security.login', next=request.url))
+
+
+class HomeAdminView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.has_role('admin')
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('security.login', next=request.url))
+
+
+# view users in admin
+admin = Admin(app, 'FlaskApp', url='/', index_view=HomeAdminView(name='Home'))
+admin.add_view(AdminView(User, db.session))
+admin.add_view(AdminView(Role, db.session))
+admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
 
 
 @app.route('/')
