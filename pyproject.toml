@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "admin_users"
+version = "0.1.0"
+description = ""
+authors = ["netscro <kovalev_evgeniy@list.ru>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Flask-Admin = "^1.5.7"
+Flask-Security-Too = "^3.4.5"
+Flask-SQLAlchemy = "^2.4.4"
+Flask = "^1.1.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
