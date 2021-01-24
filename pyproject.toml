@@ -10,6 +10,7 @@ Flask-Admin = "^1.5.7"
 Flask-Security-Too = "^3.4.5"
 Flask-SQLAlchemy = "^2.4.4"
 Flask = "^1.1.2"
+Flask-Migrate = "^2.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

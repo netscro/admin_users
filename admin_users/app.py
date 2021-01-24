@@ -8,9 +8,12 @@ from flask_admin.contrib.sqla import ModelView
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore,\
     Security, current_user
 from flask_migrate import Migrate
+# second admin
+from adm import adm
 
 
 app = Flask(__name__)
+app.register_blueprint(adm, url_prefix='/adm')
 
 # path to admin database
 db_path = os.path.join(os.path.dirname(__file__), 'admin_users.db')
@@ -48,6 +51,9 @@ class Role(db.Model, RoleMixin):
     name = db.Column(db.String(100), unique=True)
     description = db.Column(db.String(255))
 
+    def __repr__(self):
+        return '<Role %r>' % (self.name)
+
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
@@ -70,11 +76,12 @@ class HomeAdminView(AdminIndexView):
         return redirect(url_for('security.login', next=request.url))
 
 
-# view users in admin
+# users and links in admin
 admin = Admin(app, 'FlaskApp', url='/', index_view=HomeAdminView(name='Home'))
 admin.add_view(AdminView(User, db.session))
 admin.add_view(AdminView(Role, db.session))
 admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
+admin.add_link(MenuLink(name='Admin-2', category='', url="/adm/admin"))
 
 
 @app.route('/')
